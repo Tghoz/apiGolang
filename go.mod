@@ -1,4 +1,4 @@
-module www.github.com/Tghoz/apiGolang
+module github.com/Tghoz/apiGolang
 
 go 1.22.4
 
