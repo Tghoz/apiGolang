@@ -11,7 +11,7 @@ import (
 
 func GetUser(c *gin.Context) {
 	var user []models.User
-	dataBase.Db.Find(&user)
+	// dataBase.Db.Find(&user)
 	c.JSON(http.StatusOK, &user)
 }
 
