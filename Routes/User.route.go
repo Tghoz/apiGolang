@@ -7,7 +7,11 @@ import (
 
 func UserRouter(router *gin.Engine) {
 
-	router.GET("api/user", controller.GetUser)
-	router.POST("api/user", controller.CreateUser)
+	routes := router.Group("api/user")
 
+	routes.GET("", controller.GetUser)
+	routes.POST("", controller.CreateUser)
+	routes.GET("/:id", controller.GetUserByID)
+	routes.DELETE("/:id", controller.DeleteUser)
+	routes.PUT("/:id", controller.UpdateUser)
 }
