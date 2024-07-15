@@ -7,6 +7,8 @@ import (
 	models "github.com/Tghoz/apiGolang/Model"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+
+	repo "github.com/Tghoz/apiGolang/Repository"
 )
 
 func GetUser(c *gin.Context) {
@@ -59,17 +61,13 @@ func GetUserByID(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 
 	id := c.Param("id")
+	result := repo.Delete(id)
 
-	var user models.User
-	result := dataBase.Db.Unscoped().Delete(&user, id)
-
-	if result.RowsAffected == 0 {
+	if result != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"delete": true})
-
 }
 
 func UpdateUser(c *gin.Context) {

@@ -9,9 +9,8 @@ import (
 
 func main() {
 
-	db := dataBase.Connection()
-	db.AutoMigrate(models.User{})
-	
+	dataBase.Connection()
+	dataBase.Db.AutoMigrate(models.User{})
 
 	r := gin.Default()
 
