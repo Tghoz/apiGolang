@@ -12,8 +12,12 @@ import (
 )
 
 func GetUser(c *gin.Context) {
-	var user []models.User
-	// dataBase.Db.Find(&user)
+
+	user, err := repo.FindAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, &user)
 }
 
@@ -45,29 +49,31 @@ func CreateUser(c *gin.Context) {
 }
 
 func GetUserByID(c *gin.Context) {
-
 	id := c.Param("id")
-	var user models.User
-	dataBase.Db.First(&user, id)
-	if user.ID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"Error": "user not found"})
+	user, err := repo.FindById(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if user == nil {
+		c.JSON(http.StatusNotFound, gin.H{"Error": "User not found"})
 		return
 	}
 
-	c.JSON(200, &user)
-
+	c.JSON(http.StatusOK, user)
 }
 
 func DeleteUser(c *gin.Context) {
 
 	id := c.Param("id")
-	result := repo.Delete(id)
-
-	if result != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+	_, err := repo.FindById(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
+	repo.Delete(id)
 	c.JSON(http.StatusOK, gin.H{"delete": true})
+
 }
 
 func UpdateUser(c *gin.Context) {
