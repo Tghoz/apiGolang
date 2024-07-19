@@ -27,3 +27,20 @@ func FindAll() ([]models.User, error) {
 	}
 	return users, nil
 }
+
+func Create(user *models.User) (err error) {
+	result := dataBase.Db.Create(&user)
+	if result.Error != nil {
+		return result.Error
+	}
+	return
+}
+
+func Update(user *models.User, body models.User) error {
+
+	result := dataBase.Db.Model(&user).Updates(body)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
