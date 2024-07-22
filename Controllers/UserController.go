@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	dto "github.com/Tghoz/apiGolang/Dto"
 	models "github.com/Tghoz/apiGolang/Model"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -17,7 +18,12 @@ func GetUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, &user)
+
+	var userDto []dto.UserDto
+	for _, u := range user {
+		userDto = append(userDto, dto.UserDtoMap(u))
+	}
+	c.JSON(http.StatusOK, &userDto)
 }
 
 func CreateUser(c *gin.Context) {
@@ -48,25 +54,25 @@ func CreateUser(c *gin.Context) {
 
 func GetUserByID(c *gin.Context) {
 	id := c.Param("id")
+
 	user, _ := repo.FindById(id)
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	// 	return
-	// }
-	if user != nil {
-		c.JSON(http.StatusNotFound, gin.H{"Error": "User not found"})
+
+	if user.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	userDto := dto.UserDtoMap(*user)
+
+	c.JSON(http.StatusOK, &userDto)
 }
 
 func DeleteUser(c *gin.Context) {
 
 	id := c.Param("id")
-	_, err := repo.FindById(id)
+	user, _ := repo.FindById(id)
 
-	if err != nil {
+	if user.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
@@ -79,9 +85,9 @@ func DeleteUser(c *gin.Context) {
 func UpdateUser(c *gin.Context) {
 
 	id := c.Param("id")
-	user, err := repo.FindById(id)
+	user, _ := repo.FindById(id)
 
-	if err != nil {
+	if user.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
@@ -103,6 +109,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, &user)
+	userDto := dto.UserDtoMap(*user)
+	c.JSON(http.StatusOK, &userDto)
 
 }

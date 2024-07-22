@@ -1,8 +1,11 @@
 package repository
 
 import (
+
+
 	dataBase "github.com/Tghoz/apiGolang/DataBase"
 	models "github.com/Tghoz/apiGolang/Model"
+
 )
 
 func Delete(id string) error {
@@ -12,9 +15,8 @@ func Delete(id string) error {
 }
 
 func FindById(id string) (*models.User, error) {
-
 	var user models.User
-	if err := dataBase.Db.First(&user, id).Error; err != nil {
+	if err := dataBase.Db.Limit(1).Find(&user, id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
