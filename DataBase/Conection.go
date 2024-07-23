@@ -14,19 +14,16 @@ var Db *gorm.DB
 
 func Connection() {
 
-	err := godotenv.Load(".env") 
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error al cargar el archivo .env")
 	}
 
-	host := os.Getenv("host")
-	port := os.Getenv("port")
-	user := os.Getenv("user")
-	password := os.Getenv("password")
-	dbname := os.Getenv("dbname")
+	DSN := os.Getenv("DATABASE_URL")
+	fmt.Print(DSN)
 
 	var error error
-	DSN := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", host, port, user, password, dbname)
+
 	Db, error = gorm.Open(postgres.Open(DSN), &gorm.Config{})
 
 	if error != nil {
