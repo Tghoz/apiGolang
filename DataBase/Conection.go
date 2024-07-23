@@ -1,7 +1,6 @@
 package dataBase
 
 import (
-
 	"log"
 	"os"
 
@@ -14,13 +13,8 @@ var Db *gorm.DB
 
 func Connection() {
 
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error al cargar el archivo .env")
-	}
-
+	godotenv.Load(".env")
 	DSN := os.Getenv("DATABASE_PUBLIC_URL")
-
 
 	var error error
 
