@@ -14,10 +14,13 @@ var Db *gorm.DB
 
 func Connection() {
 
-	godotenv.Load(".env")
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error al cargar el archivo .env")
+	}
 
-	DSN := os.Getenv("DATABASE_URL")
-	fmt.Print(DSN)
+	DSN := os.Getenv("DATABASE_PUBLIC_URL")
+	fmt.Print(" --------->", DSN)
 
 	var error error
 
