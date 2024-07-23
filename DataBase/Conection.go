@@ -1,7 +1,7 @@
 package dataBase
 
 import (
-	"fmt"
+
 	"log"
 	"os"
 
@@ -20,7 +20,7 @@ func Connection() {
 	}
 
 	DSN := os.Getenv("DATABASE_PUBLIC_URL")
-	fmt.Print(" --------->", DSN)
+
 
 	var error error
 
