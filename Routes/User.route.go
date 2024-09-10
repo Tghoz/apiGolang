@@ -1,17 +1,42 @@
 package routes
 
 import (
+	"time"
+
 	controller "github.com/Tghoz/apiGolang/Controllers"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
+	middleware "github.com/Tghoz/apiGolang/Middleware"
 )
 
 func UserRouter(router *gin.Engine) {
 
-	routes := router.Group("api/user")
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{`http://localhost:4321`}
 
-	routes.GET("", controller.GetUser)
-	routes.POST("", controller.CreateUser)
-	routes.GET("/:id", controller.GetUserByID)
-	routes.DELETE("/:id", controller.DeleteUser)
-	routes.PUT("/:id", controller.UpdateUser)
+	config.AllowMethods = []string{"POST", "GET", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "User-Agent", "Cache-Control", "Pragma"}
+	config.ExposeHeaders = []string{"Content-Length"}
+	config.AllowCredentials = true
+	config.MaxAge = 12 * time.Hour
+
+	router.Use(cors.New(config))
+
+	authGroup := router.Group("/api/user")
+	authGroup.Use(middleware.JwtVerify())
+	{
+		authGroup.GET("", controller.GetUser)
+		authGroup.GET("/:id", controller.GetUserByID)
+		authGroup.DELETE("/:id", controller.DeleteUser)
+		authGroup.PUT("/:id", controller.UpdateUser)
+	}
+
+	// Grupo para las rutas de autenticación
+	aut := router.Group("/api/auth")
+	{
+		aut.POST("/login", controller.Login)
+		aut.POST("/register", controller.Register)
+	}
+
 }
