@@ -13,7 +13,6 @@ import (
 	repo "github.com/Tghoz/apiGolang/Repository"
 )
 
-
 func GetUser(c *gin.Context) {
 	user, err := repo.FindAll()
 	if err != nil {
@@ -21,14 +20,13 @@ func GetUser(c *gin.Context) {
 		return
 	}
 
-	var userDto []dto.UserDto
+	userDto := []dto.UserDto{}
 	for _, u := range user {
 		userDto = append(userDto, dto.UserDtoMap(u))
 	}
 
 	c.JSON(http.StatusOK, &userDto)
 }
-
 
 func GetUserByID(c *gin.Context) {
 

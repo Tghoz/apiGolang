@@ -39,4 +39,12 @@ func UserRouter(router *gin.Engine) {
 		aut.POST("/register", controller.Register)
 	}
 
+	// Grupo para las rutas de autenticación con Google
+	autGoogle := router.Group("/api/auth/google")
+	{
+		autGoogle.GET("", controller.GoogleLogin)
+		autGoogle.GET("/redirect", controller.GoogleRedirect)
+
+	}
+
 }

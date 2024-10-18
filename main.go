@@ -10,11 +10,19 @@ import (
 func main() {
 
 	dataBase.Connection()
-	dataBase.Db.AutoMigrate(models.User{})
+
+	modelsMigrate := []interface{}{
+		&models.User{},
+		&models.Clients{},
+		&models.Services{},
+		&models.Payments{},
+	}
+
+	dataBase.Db.AutoMigrate(modelsMigrate...)
 
 	r := gin.Default()
-
 	routes.UserRouter(r)
+	routes.ClientRouter(r)
 
 	r.Run(":3000")
 }

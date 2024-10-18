@@ -9,6 +9,7 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	// "gorm.io/gorm/logger"
 )
 
 var Db *gorm.DB
@@ -27,7 +28,7 @@ func Connection() {
 
 	var error error
 
-	Db, error = gorm.Open(postgres.Open(local), &gorm.Config{})
+	Db, error = gorm.Open(postgres.Open(local) /* &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)}*/)
 
 	if error != nil {
 		log.Fatal("( ͡ಠ ʖ̯ ͡ಠ) -> ", error)

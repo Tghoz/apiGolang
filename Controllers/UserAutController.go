@@ -80,9 +80,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	c.Header("Access-Control-Expose-Headers", "x-access-token")
 	c.Header("x-access-token", resp.Token)
-
-
 	c.JSON(http.StatusOK, gin.H{"status": true})
 
 }
