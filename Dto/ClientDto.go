@@ -13,6 +13,14 @@ type ClientDto struct {
 	History   []HistoryDto
 }
 
+type ServiceAndClientDto struct {
+	ID        string
+	Name      string
+	Telephone string
+	Status    string
+}
+
+
 func ClientDtoMap(c models.Clients) ClientDto {
 	return ClientDto{
 		ID:        c.ID.String(),
@@ -23,3 +31,6 @@ func ClientDtoMap(c models.Clients) ClientDto {
 		History:   []HistoryDto{},
 	}
 }
+
+
+

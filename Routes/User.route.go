@@ -3,7 +3,7 @@ package routes
 import (
 	"time"
 
-	controller "github.com/Tghoz/apiGolang/Controllers"
+	controller "github.com/Tghoz/apiGolang/Controllers/User"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 

@@ -6,11 +6,8 @@ type ServiceDto struct {
 	ID      string
 	Name    string
 	Price   float64
-	Clients []ClientDto
+	Clients []ServiceAndClientDto
 }
-
-
-
 
 type ClienAndServerDto struct {
 	ID    string

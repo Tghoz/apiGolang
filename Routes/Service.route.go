@@ -6,12 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ClientRouter(router *gin.Engine) {
+func ServiceRouter(router *gin.Engine) {
 
-	r := router.Group("/api/client")
-	r.GET("", controller.GetClient)
-	r.POST("", controller.PostClient)
-	r.GET("/:id", controller.GetClientByID)
+	r := router.Group("/api/service")
+	r.GET("", controller.GetService)
+	r.POST("", controller.PostService)
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{

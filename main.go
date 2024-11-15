@@ -23,6 +23,8 @@ func main() {
 	r := gin.Default()
 	routes.UserRouter(r)
 	routes.ClientRouter(r)
+	routes.ServiceRouter(r)
 
+	
 	r.Run(":3000")
 }
