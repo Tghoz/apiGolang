@@ -29,9 +29,10 @@ func Delete(id string) error {
 }
 
 func FindById(id string) (*models.User, error) {
-	var user models.User
 
+	var user models.User
 	userID, err := uuid.Parse(id)
+	
 	if err != nil {
 		return nil, err
 	}

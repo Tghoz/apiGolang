@@ -9,6 +9,17 @@ type ClientDto struct {
 	Name      string
 	Telephone string
 	Status    string
-	Services  []models.Services
+	Services  []ClienAndServerDto
 	History   []HistoryDto
+}
+
+func ClientDtoMap(c models.Clients) ClientDto {
+	return ClientDto{
+		ID:        c.ID.String(),
+		Name:      c.Name,
+		Telephone: c.Telephone,
+		Status:    c.Status,
+		Services:  []ClienAndServerDto{},
+		History:   []HistoryDto{},
+	}
 }

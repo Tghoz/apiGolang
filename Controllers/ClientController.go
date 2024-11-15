@@ -40,26 +40,75 @@ func GetClient(c *gin.Context) {
 
 	}
 
-	clientDto := []dto.ClientDto{}
-	// serviceDto := []dto.ServiceDto{}
-	historyDto := []dto.HistoryDto{}
+	dataClient := []dto.ClientDto{}
+	for _, c := range clients {
 
-	for _, client := range clients {
-
-		for _, h := range client.History {
-			historyDto = append(historyDto, dto.HistoryDtoMap(h)) // Asegúrate de que esta función sea correcta
+		dataService := []dto.ClienAndServerDto{}
+		for _, s := range c.Services {
+			dataService = append(dataService, dto.ClienAndServerDto{
+				ID:    s.ID.String(),
+				Name:  s.Name,
+				Price: s.Price,
+			})
 		}
 
-		clientDto = append(clientDto,
-			dto.ClientDto{
-				ID:        client.ID.String(),
-				Name:      client.Name,
-				Telephone: client.Telephone,
-				Status:    client.Status,
-				// Services:  serviceDto,
-				History: historyDto,
-			})
+		dataHistory := []dto.HistoryDto{}
+		for _, h := range c.History {
+			dataHistory = append(dataHistory, dto.HistoryDtoMap(h))
+		}
+
+		dataClient = append(dataClient, dto.ClientDto{
+			ID:        c.ID.String(),
+			Name:      c.Name,
+			Telephone: c.Telephone,
+			Status:    c.Status,
+			Services:  dataService,
+			History:   dataHistory,
+		})
+
 	}
-	c.JSON(http.StatusOK, clientDto)
+
+	c.JSON(http.StatusOK, dataClient)
+}
+
+func GetClientByID(c *gin.Context) {
+
+	id := c.Param("id")
+	clientID, err := uuid.Parse(id)
+	client := models.Clients{}
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	
+	query := dataBase.Db.Preload("Services").Preload("History").Where("id = ?", clientID).First(&client, clientID)
+
+	if query.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	dataService := []dto.ClienAndServerDto{}
+	for _, s := range client.Services {
+		dataService = append(dataService, dto.ClientAndServicesDto(s))
+	}
+
+	dataHistory := []dto.HistoryDto{}
+	for _, h := range client.History {
+		dataHistory = append(dataHistory, dto.HistoryDtoMap(h))
+	}
+
+	dataCient := dto.ClientDto{
+		ID:        client.ID.String(),
+		Name:      client.Name,
+		Telephone: client.Telephone,
+		Status:    client.Status,
+		Services:  dataService,
+		History:   dataHistory,
+	}
+
+	c.JSON(http.StatusOK, dataCient)
 
 }
