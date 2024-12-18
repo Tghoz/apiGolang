@@ -50,5 +50,42 @@ func GetService(c *gin.Context) {
 		})
 	}
 
+	if len(dataService) == 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "No content data"})
+		return
+	}
+
+	c.JSON(http.StatusOK, dataService)
+}
+
+func GetServiceByID(c *gin.Context) {
+	id := c.Param("id")
+	serviceID, err := uuid.Parse(id)
+	service := models.Services{}
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	query := dataBase.Db.Preload("Clients").Where("id = ?", serviceID).First(&service, serviceID)
+	if query.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Service not found"})
+		return
+	}
+	dataClient := []dto.ServiceAndClientDto{}
+	for _, c := range service.Clients {
+		dataClient = append(dataClient, dto.ServiceAndClientDto{
+			ID:        c.ID.String(),
+			Name:      c.Name,
+			Telephone: c.Telephone,
+			Status:    c.Status,
+		})
+	}
+	dataService := dto.ServiceDto{
+		ID:      service.ID.String(),
+		Name:    service.Name,
+		Price:   service.Price,
+		Clients: dataClient,
+	}
+
 	c.JSON(http.StatusOK, dataService)
 }

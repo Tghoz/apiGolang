@@ -28,8 +28,8 @@ func UserRouter(router *gin.Engine) {
 	{
 		authGroup.GET("", controller.GetUser)
 		authGroup.GET("/:id", controller.GetUserByID)
-		authGroup.DELETE("/:id", controller.DeleteUser)
-		authGroup.PUT("/:id", controller.UpdateUser)
+		// authGroup.DELETE("/:id", controller.DeleteUser)
+		// authGroup.PUT("/:id", controller.UpdateUser)
 	}
 
 	// Grupo para las rutas de autenticación

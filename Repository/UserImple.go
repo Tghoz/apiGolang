@@ -13,6 +13,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
+type TokenUser struct {
+	User  models.User
+	Token string
+}
+
 
 func Delete(id string) error {
 	var user models.User
@@ -27,36 +32,31 @@ func Delete(id string) error {
 	}
 	return nil
 }
+// func FindById(id string) (*models.User, error) {
+// 	var user models.User
+// 	userID, err := uuid.Parse(id)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	if err := dataBase.Db.Limit(1).Where("id = ?", id).First(&user, userID).Error; err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			return nil, err
+// 		}
+// 		return nil, err
+// 	}
+// 	return &user, nil
+// }
 
-func FindById(id string) (*models.User, error) {
+// func FindAll() ([]models.User, error) {
+// 	var users []models.User
+// 	result := dataBase.Db.Order("created_at DESC").Find(&users)
+// 	if result.Error != nil {
+// 		return nil, result.Error
+// 	}
+// 	return users, nil
+// }
 
-	var user models.User
-	userID, err := uuid.Parse(id)
-	
-	if err != nil {
-		return nil, err
-	}
 
-	if err := dataBase.Db.Limit(1).Where("id = ?", id).First(&user, userID).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, err
-		}
-		return nil, err
-	}
-
-	return &user, nil
-}
-
-func FindAll() ([]models.User, error) {
-	var users []models.User
-	result := dataBase.Db.Order("created_at DESC").Find(&users)
-
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	return users, nil
-}
 
 func Create(user *models.User) (err error) {
 	result := dataBase.Db.Create(&user)
@@ -77,9 +77,17 @@ func Update(user *models.User, body models.User) error {
 	return nil
 }
 
-type TokenUser struct {
-	User  models.User
-	Token string
+func FindByEmail(email string) (*models.User, error) {
+	var user models.User
+	dbResult := dataBase.Db.Unscoped().Where("email = ?", email).First(&user)
+	if dbResult.Error != nil {
+		if errors.Is(dbResult.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.New("user not found")
+		}
+		return nil, fmt.Errorf("database error: %w", dbResult.Error)
+	}
+
+	return &user, nil
 }
 
 func FindOne(email string, password string) (*TokenUser, error) {
@@ -117,7 +125,7 @@ func FindOne(email string, password string) (*TokenUser, error) {
 	// Crea el token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tk)
 
-	tokenString, err := token.SignedString([]byte("olas papa")) // ojo pelao
+	tokenString, err := token.SignedString([]byte("olas papa")) //! ojo pelao
 	if err != nil {
 		return nil, err
 	}
@@ -131,16 +139,3 @@ func FindOne(email string, password string) (*TokenUser, error) {
 
 }
 
-func FindByEmail(email string) (*models.User, error) {
-	var user models.User
-
-	dbResult := dataBase.Db.Unscoped().Where("email = ?", email).First(&user)
-	if dbResult.Error != nil {
-		if errors.Is(dbResult.Error, gorm.ErrRecordNotFound) {
-			return nil, errors.New("user not found")
-		}
-		return nil, fmt.Errorf("database error: %w", dbResult.Error)
-	}
-
-	return &user, nil
-}

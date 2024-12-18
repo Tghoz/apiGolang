@@ -6,6 +6,7 @@ import (
 	dataBase "github.com/Tghoz/apiGolang/DataBase"
 	dto "github.com/Tghoz/apiGolang/Dto"
 	models "github.com/Tghoz/apiGolang/Model"
+	repo "github.com/Tghoz/apiGolang/Repository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -17,7 +18,7 @@ func PostClient(c *gin.Context) {
 		return
 	}
 	client.ID = uuid.New()
-	if err := dataBase.Db.Create(&client).Error; err != nil {
+	if err := dataBase.Db.Create(&client).Error; err != nil { // ! PAl repo
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create client"})
 		return
 	}
@@ -25,11 +26,13 @@ func PostClient(c *gin.Context) {
 }
 
 func GetClient(c *gin.Context) {
-	clients := []models.Clients{}
-	if err := dataBase.Db.Preload("Services").Preload("History").Find(&clients).Error; err != nil {
+	db := dataBase.Db
+	clients, err := repo.FindAll(db, models.Clients{}, "Services", "History")
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	dataClient := []dto.ClientDto{}
 	for _, c := range clients {
 		dataService := []dto.ClienAndServerDto{}
@@ -53,22 +56,23 @@ func GetClient(c *gin.Context) {
 			History:   dataHistory,
 		})
 	}
+
+	if len(dataClient) == 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "No content data"})
+		return
+	}
 	c.JSON(http.StatusOK, dataClient)
 }
 
 func GetClientByID(c *gin.Context) {
-	id := c.Param("id")
-	clientID, err := uuid.Parse(id)
-	client := models.Clients{}
+	clientID := c.Param("id")
+	db := dataBase.Db
+	client, err := repo.FindById(db, clientID, models.Clients{}, "Services", "History")
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	query := dataBase.Db.Preload("Services").Preload("History").Where("id = ?", clientID).First(&client, clientID)
-	if query.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Client not found"})
 		return
 	}
+
 	dataService := []dto.ClienAndServerDto{}
 	for _, s := range client.Services {
 		dataService = append(dataService, dto.ClientAndServicesDto(s))
@@ -86,4 +90,40 @@ func GetClientByID(c *gin.Context) {
 		History:   dataHistory,
 	}
 	c.JSON(http.StatusOK, dataCient)
+}
+
+func DeleteClient(c *gin.Context) {
+	id := c.Param("id")
+	clientID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	query := dataBase.Db.Where("id = ?", clientID).Unscoped().Delete(&models.Clients{}) //! PAl repo
+	if query.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete client"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Client deleted"})
+}
+
+func UpdateClient(c *gin.Context) {
+	id := c.Param("id")
+	clientID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+	client := models.Clients{}
+	if err := c.ShouldBindJSON(&client); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	query := dataBase.Db.Model(&models.Clients{}).Where("id = ?", clientID).Updates(&client) //! PAl repo
+
+	if query.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update client"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Client updated"})
 }

@@ -6,48 +6,44 @@ import (
 	dto "github.com/Tghoz/apiGolang/Dto"
 	models "github.com/Tghoz/apiGolang/Model"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 
-	"golang.org/x/crypto/bcrypt"
+	dataBase "github.com/Tghoz/apiGolang/DataBase"
 
 	repo "github.com/Tghoz/apiGolang/Repository"
 )
 
+var db = dataBase.Db
+
 func GetUser(c *gin.Context) {
-	user, err := repo.FindAll()
+	user, err := repo.FindAll(db, models.User{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
 	userDto := []dto.UserDto{}
 	for _, u := range user {
 		userDto = append(userDto, dto.UserDtoMap(u))
 	}
-
 	c.JSON(http.StatusOK, &userDto)
 }
 
 func GetUserByID(c *gin.Context) {
-
 	id := c.Param("id")
-	user, err := repo.FindById(id)
-
+	user, err := repo.FindById(db, id, models.User{})
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "Usuario no encontrado"})
 		return
 	}
-
 	if user == nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "Usuario no encontrado"})
 		return
 	}
-
 	userDto := dto.UserDtoMap(*user)
 
 	c.JSON(http.StatusOK, &userDto)
 }
 
+/*
 func DeleteUser(c *gin.Context) {
 
 	id := c.Param("id")
@@ -108,3 +104,4 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, &userDto)
 
 }
+*/

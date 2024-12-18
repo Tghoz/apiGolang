@@ -26,7 +26,6 @@ func JwtVerify() gin.HandlerFunc {
 	
 
 		tk := &models.Token{}
-
 		_, err := jwt.ParseWithClaims(header, tk, func(token *jwt.Token) (interface{}, error) {
 			return []byte("olas papa"), nil // Aquí deberías implementar la lógica para obtener la clave secreta de forma segura
 		})
