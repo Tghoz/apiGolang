@@ -3,9 +3,9 @@ package controllers
 import (
 	"net/http"
 
-	dataBase "github.com/Tghoz/apiGolang/DataBase"
 	dto "github.com/Tghoz/apiGolang/Dto"
 	models "github.com/Tghoz/apiGolang/Model"
+	repo "github.com/Tghoz/apiGolang/Repository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -17,7 +17,8 @@ func PostService(c *gin.Context) {
 		return
 	}
 	service.ID = uuid.New()
-	if err := dataBase.Db.Create(&service).Error; err != nil {
+	query := repo.Create(service)
+	if query != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create service"})
 		return
 	}
@@ -25,8 +26,8 @@ func PostService(c *gin.Context) {
 }
 
 func GetService(c *gin.Context) {
-	services := []models.Services{}
-	if err := dataBase.Db.Preload("Clients").Find(&services).Error; err != nil {
+	services, err := repo.FindAll(models.Services{}, "Clients")
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -41,7 +42,6 @@ func GetService(c *gin.Context) {
 				Status:    c.Status,
 			})
 		}
-
 		dataService = append(dataService, dto.ServiceDto{
 			ID:      s.ID.String(),
 			Name:    s.Name,
@@ -49,25 +49,17 @@ func GetService(c *gin.Context) {
 			Clients: dataClient,
 		})
 	}
-
 	if len(dataService) == 0 {
 		c.JSON(http.StatusOK, gin.H{"message": "No content data"})
 		return
 	}
-
 	c.JSON(http.StatusOK, dataService)
 }
 
 func GetServiceByID(c *gin.Context) {
 	id := c.Param("id")
-	serviceID, err := uuid.Parse(id)
-	service := models.Services{}
+	service, err := repo.FindById(id, models.Services{}, "Clients")
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	query := dataBase.Db.Preload("Clients").Where("id = ?", serviceID).First(&service, serviceID)
-	if query.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Service not found"})
 		return
 	}
@@ -86,6 +78,31 @@ func GetServiceByID(c *gin.Context) {
 		Price:   service.Price,
 		Clients: dataClient,
 	}
-
 	c.JSON(http.StatusOK, dataService)
+}
+
+func Delete(c *gin.Context) {
+	id := c.Param("id")
+	query := repo.Delete(id, models.Services{})
+	if query != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete service"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Service deleted"})
+}
+
+func UpdateService(c *gin.Context) {
+	id := c.Param("id")
+	service := models.Services{}
+	if err := c.ShouldBindJSON(&service); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	query := repo.Update(id, service)
+	if query != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update service"})
+		return
+	}
+	c.JSON(http.StatusOK, service)
+
 }
