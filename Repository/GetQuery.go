@@ -1,13 +1,16 @@
 package repository
+
 import (
 	"errors"
+
+	dataBase "github.com/Tghoz/apiGolang/DataBase"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-func FindAll[T any](db *gorm.DB, model T, preloads ...string) ([]T, error) {
+func FindAll[T any](model T, preloads ...string) ([]T, error) {
 	var results []T
-	tx := db
+	tx := dataBase.Db
 	for _, preload := range preloads {
 		tx = tx.Preload(preload)
 	}
@@ -17,9 +20,9 @@ func FindAll[T any](db *gorm.DB, model T, preloads ...string) ([]T, error) {
 	return results, nil
 }
 
-func FindById[T any](db *gorm.DB, id string, model T, preloads ...string) (*T, error) {
+func FindById[T any](id string, model T, preloads ...string) (*T, error) {
 	var result T
-	tx := db
+	tx := dataBase.Db
 	for _, preload := range preloads {
 		tx = tx.Preload(preload)
 	}

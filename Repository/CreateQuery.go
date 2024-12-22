@@ -1,10 +1,12 @@
 package repository
 
 import (
-	"gorm.io/gorm"
+
+	dataBase "github.com/Tghoz/apiGolang/DataBase"
 )
 
-func Create[T any](db *gorm.DB, model T) error {
+func Create[T any]( model T) error {
+	db := dataBase.Db
 	result := db.Create(&model)
 	if result.Error != nil {
 		return result.Error

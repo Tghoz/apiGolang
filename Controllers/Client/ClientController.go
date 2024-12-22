@@ -4,47 +4,31 @@ import (
 	"log"
 	"net/http"
 
-	dataBase "github.com/Tghoz/apiGolang/DataBase"
 	dto "github.com/Tghoz/apiGolang/Dto"
 	models "github.com/Tghoz/apiGolang/Model"
 	repo "github.com/Tghoz/apiGolang/Repository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-
 )
 
 func PostClient(c *gin.Context) {
-	db := dataBase.Db
-	if db == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not initialized"})
-		return
-	}
-
 	client := models.Clients{}
 	if err := c.ShouldBindJSON(&client); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	client.ID = uuid.New()
-	query := repo.Create(db, client)
+	query := repo.Create(client)
 	if query != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create client"})
 		return
 	}
-
 	log.Println("Client created successfully")
-
 	c.JSON(http.StatusCreated, client)
 }
 
 func GetClient(c *gin.Context) {
-	db := dataBase.Db
-	if db == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not initialized"})
-		return
-	}
-
-	clients, err := repo.FindAll(db, models.Clients{}, "Services", "History")
+	clients, err := repo.FindAll(models.Clients{}, "Services", "History")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -82,14 +66,9 @@ func GetClient(c *gin.Context) {
 }
 
 func GetClientByID(c *gin.Context) {
-	db := dataBase.Db
-	if db == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not initialized"})
-		return
-	}
 
 	clientID := c.Param("id")
-	client, err := repo.FindById(db, clientID, models.Clients{}, "Services", "History")
+	client, err := repo.FindById(clientID, models.Clients{}, "Services", "History")
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Client not found"})
 		return
@@ -114,14 +93,9 @@ func GetClientByID(c *gin.Context) {
 }
 
 func DeleteClient(c *gin.Context) {
-	db := dataBase.Db
-	if db == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not initialized"})
-		return
-	}
 
 	clientID := c.Param("id")
-	query := repo.Delete(db, clientID, models.Clients{})
+	query := repo.Delete(clientID, models.Clients{})
 	if query != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete client"})
 		return
@@ -130,19 +104,13 @@ func DeleteClient(c *gin.Context) {
 }
 
 func UpdateClient(c *gin.Context) {
-	db := dataBase.Db
-	if db == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not initialized"})
-		return
-	}
-
 	clientID := c.Param("id")
 	var client models.Clients
 	if err := c.ShouldBindJSON(&client); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := repo.Update(db, clientID, client)
+	err := repo.Update(clientID, client)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

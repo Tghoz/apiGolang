@@ -8,8 +8,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 
-	dataBase "github.com/Tghoz/apiGolang/DataBase"
-
 	"golang.org/x/crypto/bcrypt"
 
 	repo "github.com/Tghoz/apiGolang/Repository"
@@ -24,8 +22,6 @@ func Register(c *gin.Context) {
 
 	validate := validator.New()
 	user := models.User{}
-
-	db := dataBase.Db
 
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -47,7 +43,7 @@ func Register(c *gin.Context) {
 	user.ID = uuid.New()
 	user.Password = string(pass)
 
-	result := repo.Create(db, &user)
+	result := repo.Create(&user)
 
 	if result != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "failt to insert"})

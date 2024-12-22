@@ -3,16 +3,14 @@ package repository
 import (
 	"errors"
 
+	dataBase "github.com/Tghoz/apiGolang/DataBase"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-
-
-
-func Delete[T any](db *gorm.DB, id string, model T) error {
+func Delete[T any](id string, model T) error {
 	var result T
-	tx := db
+	tx := dataBase.Db
 	T_id, err := uuid.Parse(id)
 	if err != nil {
 		return err

@@ -7,15 +7,11 @@ import (
 	models "github.com/Tghoz/apiGolang/Model"
 	"github.com/gin-gonic/gin"
 
-	dataBase "github.com/Tghoz/apiGolang/DataBase"
-
 	repo "github.com/Tghoz/apiGolang/Repository"
 )
 
-var db = dataBase.Db
-
 func GetUser(c *gin.Context) {
-	user, err := repo.FindAll(db, models.User{})
+	user, err := repo.FindAll(models.User{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -29,7 +25,7 @@ func GetUser(c *gin.Context) {
 
 func GetUserByID(c *gin.Context) {
 	id := c.Param("id")
-	user, err := repo.FindById(db, id, models.User{})
+	user, err := repo.FindById(id, models.User{})
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "Usuario no encontrado"})
 		return
