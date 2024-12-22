@@ -1,8 +1,6 @@
 package repository
-
 import (
 	"errors"
-
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -29,7 +27,6 @@ func FindById[T any](db *gorm.DB, id string, model T, preloads ...string) (*T, e
 	if err != nil {
 		return nil, err
 	}
-
 	if err := tx.Limit(1).Where("id = ?", T_id).First(&result).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err

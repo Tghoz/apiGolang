@@ -40,11 +40,11 @@ func UserRouter(router *gin.Engine) {
 	}
 
 	// Grupo para las rutas de autenticación con Google
-	autGoogle := router.Group("/api/auth/google")
-	{
-		autGoogle.GET("", controller.GoogleLogin)
-		autGoogle.GET("/redirect", controller.GoogleRedirect)
+	// autGoogle := router.Group("/api/auth/google")
+	// {
+	// 	autGoogle.GET("", controller.GoogleLogin)
+	// 	autGoogle.GET("/redirect", controller.GoogleRedirect)
 
-	}
+	// }
 
 }

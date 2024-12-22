@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 
 	dataBase "github.com/Tghoz/apiGolang/DataBase"
@@ -9,24 +10,40 @@ import (
 	repo "github.com/Tghoz/apiGolang/Repository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+
 )
 
 func PostClient(c *gin.Context) {
+	db := dataBase.Db
+	if db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not initialized"})
+		return
+	}
+
 	client := models.Clients{}
 	if err := c.ShouldBindJSON(&client); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	client.ID = uuid.New()
-	if err := dataBase.Db.Create(&client).Error; err != nil { // ! PAl repo
+	query := repo.Create(db, client)
+	if query != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create client"})
 		return
 	}
+
+	log.Println("Client created successfully")
+
 	c.JSON(http.StatusCreated, client)
 }
 
 func GetClient(c *gin.Context) {
 	db := dataBase.Db
+	if db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not initialized"})
+		return
+	}
+
 	clients, err := repo.FindAll(db, models.Clients{}, "Services", "History")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -65,14 +82,18 @@ func GetClient(c *gin.Context) {
 }
 
 func GetClientByID(c *gin.Context) {
-	clientID := c.Param("id")
 	db := dataBase.Db
+	if db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not initialized"})
+		return
+	}
+
+	clientID := c.Param("id")
 	client, err := repo.FindById(db, clientID, models.Clients{}, "Services", "History")
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Client not found"})
 		return
 	}
-
 	dataService := []dto.ClienAndServerDto{}
 	for _, s := range client.Services {
 		dataService = append(dataService, dto.ClientAndServicesDto(s))
@@ -93,37 +114,38 @@ func GetClientByID(c *gin.Context) {
 }
 
 func DeleteClient(c *gin.Context) {
-	id := c.Param("id")
-	clientID, err := uuid.Parse(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	db := dataBase.Db
+	if db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not initialized"})
 		return
 	}
-	query := dataBase.Db.Where("id = ?", clientID).Unscoped().Delete(&models.Clients{}) //! PAl repo
-	if query.Error != nil {
+
+	clientID := c.Param("id")
+	query := repo.Delete(db, clientID, models.Clients{})
+	if query != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete client"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Client deleted"})
+	c.JSON(http.StatusOK, gin.H{"message": "deleted client"})
 }
 
 func UpdateClient(c *gin.Context) {
-	id := c.Param("id")
-	clientID, err := uuid.Parse(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	db := dataBase.Db
+	if db == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection not initialized"})
 		return
 	}
-	client := models.Clients{}
+
+	clientID := c.Param("id")
+	var client models.Clients
 	if err := c.ShouldBindJSON(&client); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	query := dataBase.Db.Model(&models.Clients{}).Where("id = ?", clientID).Updates(&client) //! PAl repo
-
-	if query.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update client"})
+	err := repo.Update(db, clientID, client)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Client updated"})
+	c.JSON(http.StatusOK, gin.H{"message": "Client updated successfully"})
 }

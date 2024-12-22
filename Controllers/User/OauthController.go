@@ -107,7 +107,8 @@ func GoogleRedirect(c *gin.Context) {
 				UserName: googleUser["name"].(string),
 				Password: randomPassword,
 			}
-			err = repo.Create(user)
+			//! ojo pelao
+			// err = repo.Create(user)
 
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating user: " + err.Error()})
