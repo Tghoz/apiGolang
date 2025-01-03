@@ -20,7 +20,6 @@ type ServiceAndClientDto struct {
 	Status    string
 }
 
-
 func ClientDtoMap(c models.Clients) ClientDto {
 	return ClientDto{
 		ID:        c.ID.String(),

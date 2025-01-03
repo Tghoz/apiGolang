@@ -24,7 +24,7 @@ func main() {
 	routes.UserRouter(r)
 	routes.ClientRouter(r)
 	routes.ServiceRouter(r)
+	routes.PaymentRouter(r)
 
-	
 	r.Run(":3000")
 }

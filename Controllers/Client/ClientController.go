@@ -33,7 +33,6 @@ func GetClient(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
 	dataClient := []dto.ClientDto{}
 	for _, c := range clients {
 		dataService := []dto.ClienAndServerDto{}
@@ -57,7 +56,6 @@ func GetClient(c *gin.Context) {
 			History:   dataHistory,
 		})
 	}
-
 	if len(dataClient) == 0 {
 		c.JSON(http.StatusOK, gin.H{"message": "No content data"})
 		return
@@ -66,7 +64,6 @@ func GetClient(c *gin.Context) {
 }
 
 func GetClientByID(c *gin.Context) {
-
 	clientID := c.Param("id")
 	client, err := repo.FindById(clientID, models.Clients{}, "Services", "History")
 	if err != nil {
@@ -93,7 +90,6 @@ func GetClientByID(c *gin.Context) {
 }
 
 func DeleteClient(c *gin.Context) {
-
 	clientID := c.Param("id")
 	query := repo.Delete(clientID, models.Clients{})
 	if query != nil {
